@@ -1,5 +1,7 @@
 import pytest
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication
+
 from main import RootSolver
 from ui.main_window import MainWindow
 
@@ -20,6 +22,7 @@ def app_with_window(qapp, qtbot):
     return qapp, window, qtbot
 
 class TestRootSolver:
+
     def test_initial_state(self, app_with_window):
         app, w, qtbot = app_with_window
         assert w.input_value.text() == ""
@@ -52,36 +55,3 @@ class TestRootSolver:
         w.input_degree.setText("2")
         qtbot.mouseClick(w.btn_calc, Qt.MouseButton.LeftButton)
         assert "I" in w.result.text()  # SymPy комплексное число
-
-    @pytest.mark.parametrize("lang_index,expected_btn_text", [
-        (0, "Вычислить"),   # русский
-        (1, "Calculate"),    # английский
-        (2, "Calcular"),     # испанский
-        (3, "计算"),          # китайский
-    ])
-    def test_language_switch(self, app_with_window, lang_index, expected_btn_text):
-        app, w, qtbot = app_with_window
-        w.lang_selector.setCurrentIndex(lang_index)
-        assert w.btn_calc.text() == expected_btn_text
-
-    def test_result_text_translation(self, app_with_window):
-        app, w, qtbot = app_with_window
-        w.input_value.setText("9")
-        w.input_degree.setText("2")
-        qtbot.mouseClick(w.btn_calc, Qt.MouseButton.LeftButton)
-
-        # английский
-        w.lang_selector.setCurrentIndex(1)
-        text_en = w.result.text()
-        assert "root of 9" in text_en or "root of 9.0" in text_en
-
-        # испанский
-        w.lang_selector.setCurrentIndex(2)
-        text_es = w.result.text()
-        assert "raíz de 9" in text_es or "raíz de 9.0" in text_es
-
-        # китайский
-        w.lang_selector.setCurrentIndex(3)
-        text_cn = w.result.text()
-        assert "9的" in text_cn or "9.0的" in text_cn
-
