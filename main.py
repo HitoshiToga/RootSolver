@@ -1,16 +1,28 @@
-# This is a sample Python script.
+import sys
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QTranslator
+from ui.main_window import MainWindow
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+class RootSolver(QApplication):
+    def __init__(self, argv):
+        super().__init__(argv)
+        self.translator = QTranslator()
+        self.main_window = MainWindow(self)
+        self.main_window.show()
+        # Язык по умолчанию
+        self.load_language("ru_RU")
 
+    def load_language(self, lang_code):
+        """Загрузка .qm файла и обновление интерфейса"""
+        if not self.translator.isEmpty():
+            self.removeTranslator(self.translator)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+        if self.translator.load(f"translations/{lang_code}.qm"):
+            self.installTranslator(self.translator)
 
+        if self.main_window:
+            self.main_window.retranslate_ui()
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+if __name__ == "__main__":
+    app = RootSolver(sys.argv)
+    sys.exit(app.exec())
