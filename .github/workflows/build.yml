@@ -26,7 +26,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller PyQt6
-
       - name: Install Linux Qt deps
         if: runner.os == 'Linux'
         run: |
@@ -50,12 +49,24 @@ jobs:
             libxcb-cursor0 \
             libxkbcommon-x11-0 \
             xvfb
-
-      - name: Build executable
+      - name: Build executable Windows
+        if: runner.os == 'Windows'
         run: |
-          pyinstaller rootsolver.spec --noconfirm
-
-      - name: Upload artifact
+          pyinstaller --noconfirm --onedir --windowed --name RootSolver --add-data ".\translations;translations" main.py
+      - name: Build executable Linux/macOS
+        if: runner.os != 'Windows'
+        run: |
+          pyinstaller --noconfirm --onedir --windowed --name RootSolver --add-data "translations:translations" main.py
+      # Windows
+      - name: Upload artifact (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: RootSolver-windows
+          path: dist/RootSolver
+      # Linux/macOS
+      - name: Upload artifact (Linux/macOS)
+        if: runner.os != 'Windows'
         uses: actions/upload-artifact@v4
         with:
           name: RootSolver-${{ matrix.os }}
